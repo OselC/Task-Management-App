@@ -88,3 +88,9 @@ Frontend runs on:
 ```arduino
 http://localhost:5173
 ```
+
+### 🧪 Default Login Credentials
+```makefile
+Username: admin
+Password: admin123
+```
