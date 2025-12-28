@@ -1,4 +1,6 @@
 <template>
+  <div class="page-bg">
+
   <div class="login-container">
     <div class="login-card">
       <h2>Task Manager Login</h2>
@@ -27,6 +29,8 @@
       </button>
     </div>
   </div>
+  
+</div>
 </template>
 
 <script>

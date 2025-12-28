@@ -25,13 +25,39 @@
       </div>
     </form>
 
-    <div class="task-counter">{{ tasks.length }} tasks</div>
+    <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
+
+    <div class="task-counter-wrapper">
+      <div class="task-counter">
+        {{ filteredTasks.length }} tasks
+        <select v-model="filterStatus" class="filter-dropdown">
+          <option value="">All</option>
+          <option value="To Do">To Do</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Done">Done</option>
+        </select>
+      </div>
+      <div class="search-bar-wrapper">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search tasks..."
+          class="search-bar"
+        />
+        <span class="search-icon">
+          <!-- Magnifying glass SVG -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11 4a7 7 0 100 14 7 7 0 000-14zm0-2a9 9 0 016.32 15.32l4.36 4.36-1.41 1.41-4.36-4.36A9 9 0 1111 2z" fill="currentColor"/>
+          </svg>
+        </span>
+      </div>
+    </div>
 
     <div class="task-list">
-        <div v-if="tasks.length === 0" class="empty">
-          <p>No tasks yet — add your first task with the form above.</p>
+        <div v-if="paginatedTasks.length === 0" class="empty">
+          <p>No tasks match your search or filter.</p>
         </div>
-        <div v-for="task in tasks" :key="task.id" class="task-card">
+        <div v-for="task in paginatedTasks" :key="task.id" class="task-card">
           <!-- action icons top-right -->
           <div class="task-actions-top">
             <button class="icon-btn delete-icon" @click="deleteTask(task.id)" aria-label="Delete task">
@@ -71,12 +97,31 @@
           </template>
         </div>
     </div>
+
+    <div class="pagination" v-if="totalPages > 1">
+      <button
+        class="pagination-btn"
+        :disabled="currentPage === 1"
+        @click="currentPage--"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="pagination-btn"
+        :disabled="currentPage === totalPages"
+        @click="currentPage++"
+      >
+        Next
+      </button>
+    </div>
+
   </div>
 </template>
 
 <script>
 import api from "../services/api";
-import "../assets/styles/dashboard.css";
+import "../assets/styles/dashboard.css"; // Ensure styles are imported
 
 export default {
   name: "Dashboard",
@@ -89,8 +134,38 @@ export default {
       editingId: null,
       editTitle: "",
       editDescription: "",
-      editStatus: "To Do"
+      editStatus: "To Do",
+      filterStatus: "",
+      searchQuery: "",
+      currentPage: 1,
+      tasksPerPage: 8,
+      successMessage: "", // New state for success message
     };
+  },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.filteredTasks.length / this.tasksPerPage);
+    },
+    paginatedTasks() {
+      const start = (this.currentPage - 1) * this.tasksPerPage;
+      const end = start + this.tasksPerPage;
+      return this.filteredTasks.slice(start, end);
+    },
+    filteredTasks() {
+      const query = this.searchQuery.toLowerCase();
+      return this.tasks.filter(task => {
+        const matchesStatus = !this.filterStatus || task.status === this.filterStatus;
+        const matchesSearch = task.title.toLowerCase().includes(query);
+        return matchesStatus && matchesSearch;
+      });
+    },
+  },
+  watch: {
+    filteredTasks() {
+      if (this.currentPage > this.totalPages) {
+        this.currentPage = this.totalPages || 1;
+      }
+    },
   },
   async mounted() {
     this.fetchTasks();
@@ -115,6 +190,10 @@ export default {
         this.title = "";
         this.description = "";
         this.status = "To Do";
+        this.successMessage = "Task added successfully!"; // Set success message
+        setTimeout(() => {
+          this.successMessage = ""; // Clear message after 3 seconds
+        }, 3000);
         this.fetchTasks();
       } catch (err) {
         console.error(err);
