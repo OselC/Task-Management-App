@@ -71,3 +71,20 @@ Backend runs on:
 ```cpp
 http://127.0.0.1:5000
 ```
+
+## 🎨 Frontend Setup
+### 1️⃣ Install dependencies
+```bash
+cd frontend
+npm install
+```
+
+### 2️⃣ Run frontend
+```bash
+npm run dev
+```
+
+Frontend runs on:
+```arduino
+http://localhost:5173
+```
