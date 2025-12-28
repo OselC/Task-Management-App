@@ -1,10 +1,10 @@
 <script setup>
-// You generally don't need to import views here; 
-// the router handles that!
+import { useRoute } from 'vue-router'
+const route = useRoute()
 </script>
 
 <template>
-  <nav>
+  <nav v-if="!(route.path === '/' || route.path === '/dashboard')">
     <router-link to="/">Login</router-link> |
     <router-link to="/dashboard">Dashboard</router-link>
   </nav>

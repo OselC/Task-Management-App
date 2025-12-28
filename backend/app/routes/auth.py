@@ -6,8 +6,13 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.json
+    print(data) # DEBUG LINE
 
-    if data["username"] == "admin" and data["password"] == "admin123":
+    # Accept either 'username' or legacy 'user' field and trim whitespace
+    username = (data.get("username") or data.get("user") or "").strip()
+    password = (data.get("password") or "").strip()
+
+    if username == "admin" and password == "admin123":
         token = create_access_token(identity="admin")
         return jsonify(access_token=token)
 

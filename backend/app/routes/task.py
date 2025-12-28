@@ -21,15 +21,22 @@ def get_tasks():
 @task_bp.route("/", methods=["POST"])
 @jwt_required()
 def create_task():
-    data = request.json
-    task = Task(
-        title=data["title"],
-        description=data["description"],
-        status=data["status"]
-    )
-    db.session.add(task)
-    db.session.commit()
-    return jsonify(message="Task created")
+    try:
+        data = request.json
+        print('CREATE_TASK headers:', dict(request.headers))
+        print('CREATE_TASK body:', data)
+
+        task = Task(
+            title=data.get("title"),
+            description=data.get("description"),
+            status=data.get("status")
+        )
+        db.session.add(task)
+        db.session.commit()
+        return jsonify(message="Task created")
+    except Exception as e:
+        print('CREATE_TASK error:', e)
+        return jsonify(message="Failed to create task", error=str(e)), 500
 
 @task_bp.route("/<int:id>", methods=["PUT"])
 @jwt_required()

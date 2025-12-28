@@ -6,6 +6,8 @@ from flask_cors import CORS
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    # Allow routes to be matched with or without a trailing slash
+    app.url_map.strict_slashes = False
 
     db.init_app(app)
     jwt.init_app(app)
